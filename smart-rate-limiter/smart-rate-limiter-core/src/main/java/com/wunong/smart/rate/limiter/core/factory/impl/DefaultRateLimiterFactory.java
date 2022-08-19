@@ -1,6 +1,9 @@
 package com.wunong.smart.rate.limiter.core.factory.impl;
 
 import com.wunong.smart.rate.limiter.core.api.IRateLimiter;
+import com.wunong.smart.rate.limiter.core.api.MethodKeyProvider;
+import com.wunong.smart.rate.limiter.core.callback.DegradedCallback;
+import com.wunong.smart.rate.limiter.core.callback.LimitedCallback;
 import com.wunong.smart.rate.limiter.core.config.LimiterData;
 import com.wunong.smart.rate.limiter.core.enums.LimiterEnum;
 import com.wunong.smart.rate.limiter.core.exception.DegradedException;
@@ -18,7 +21,25 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultRateLimiterFactory implements RateLimiterFactory {
 
+    /**
+     * 限流配置
+     */
     private final Map<String, IRateLimiter> map;
+
+    /**
+     * 方法限流标识
+     */
+    private MethodKeyProvider methodKeyProvider = MethodKeyProvider.DEFAULT_PROVIDER;
+
+    /**
+     * 降级回调
+     */
+    private DegradedCallback degradedCallback = DegradedCallback.DEFAULT_CALLBACK;
+
+    /**
+     * 限流回调
+     */
+    private LimitedCallback limitedCallback = LimitedCallback.DEFAULT_CALLBACK;
 
     public DefaultRateLimiterFactory() {
         this(32);
@@ -33,17 +54,15 @@ public class DefaultRateLimiterFactory implements RateLimiterFactory {
         LimiterEnum limiterEnum = tryLimitKey(key);
 
         if (limiterEnum == LimiterEnum.DEGRADE) {
-            afterDegradedCallback(key);
-            throw new DegradedException();
+            degradedCallback.callback(key);
         } else if (limiterEnum == LimiterEnum.LIMITED) {
-            afterLimitedCallback(key);
-            throw new LimitedException();
+            limitedCallback.callback(key);
         }
     }
 
     @Override
     public void tryLimit(Method method) throws LimitedException {
-        String key = getMethodKey(method);
+        String key = methodKeyProvider.getKey(method);
         this.tryLimit(key);
     }
 
@@ -53,55 +72,40 @@ public class DefaultRateLimiterFactory implements RateLimiterFactory {
         LimiterEnum limiterEnum = tryLimitKey(key);
 
         if (limiterEnum == LimiterEnum.DEGRADE) {
-            afterDegradedCallback(key);
-            throw new DegradedException(data.getTips());
+            degradedCallback.callback(data);
         } else if (limiterEnum == LimiterEnum.LIMITED) {
-            afterLimitedCallback(key);
-            throw new LimitedException(data.getTips());
+            limitedCallback.callback(data);
         }
     }
 
     /**
-     * 限流之后的回调方法
+     * 设置限流回调方法
      *
-     * @param key
+     * @param limitedCallback
      */
-    protected void afterLimitedCallback(String key) {
-        // do nothing
+    public void setLimitedCallback(LimitedCallback limitedCallback) {
+        Objects.requireNonNull(limitedCallback, "limited callback can't be null");
+        this.limitedCallback = limitedCallback;
     }
 
     /**
-     * 降级之后的回调方法
+     * 设置降级回调方法
      *
-     * @param key
+     * @param degradedCallback
      */
-    protected void afterDegradedCallback(String key) {
-        // do nothing
+    public void setDegradedCallback(DegradedCallback degradedCallback) {
+        Objects.requireNonNull(degradedCallback, "degraded callback can't be null");
+        this.degradedCallback = degradedCallback;
     }
 
     /**
-     * 根据方法获取key标识
+     * 设置方法标识提供者
      *
-     * @param method
-     * @return
+     * @param methodKeyProvider
      */
-    protected String getMethodKey(Method method) {
-        StringBuilder builder = new StringBuilder(128)
-                .append(method.getDeclaringClass().getName())
-                .append(".")
-                .append(method.getName());
-
-        Class<?>[] classes = method.getParameterTypes();
-
-        builder.append("(");
-        if (classes.length > 0) {
-            for (Class<?> clazz : classes) {
-                builder.append(clazz.getSimpleName()).append(",");
-            }
-            builder.deleteCharAt(builder.length() - 1);
-        }
-
-        return builder.append(")").toString();
+    public void setMethodKeyProvider(MethodKeyProvider methodKeyProvider) {
+        Objects.requireNonNull(methodKeyProvider, "method key provider can't be null");
+        this.methodKeyProvider = methodKeyProvider;
     }
 
     /**
