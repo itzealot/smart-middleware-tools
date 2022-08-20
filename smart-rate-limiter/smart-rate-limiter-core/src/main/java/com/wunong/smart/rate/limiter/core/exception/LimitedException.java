@@ -27,7 +27,7 @@ public class LimitedException extends ServiceException {
     }
 
     public LimitedException(String errorInfo) {
-        super(IError.of(LIMITED_ERROR_CODE, errorInfo, IErrorLevel.IGNORE));
+        super(newLimitedError(errorInfo));
     }
 
     /**
