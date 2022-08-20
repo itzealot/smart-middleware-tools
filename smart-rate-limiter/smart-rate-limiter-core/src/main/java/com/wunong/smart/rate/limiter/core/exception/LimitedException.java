@@ -1,8 +1,6 @@
 package com.wunong.smart.rate.limiter.core.exception;
 
-import com.wunong.smart.domain.platform.exception.IError;
-import com.wunong.smart.domain.platform.exception.IErrorLevel;
-import com.wunong.smart.domain.platform.exception.ServiceException;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -10,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author created by zealot.zt
  */
-public class LimitedException extends ServiceException {
+public class LimitedException extends RuntimeException {
 
     /**
      * 限流错误码
@@ -20,14 +18,22 @@ public class LimitedException extends ServiceException {
     /**
      * 限流错误信息
      */
-    public static final IError LIMITED_ERROR = IError.of(LIMITED_ERROR_CODE, "亲，请求繁忙请稍后重试", IErrorLevel.IGNORE);
+    public static final String LIMITED_ERROR_INFO = "亲，请求繁忙请稍后重试";
+
+    /**
+     * 错误码
+     */
+    @Getter
+    private String errorCode;
 
     public LimitedException() {
-        super(LIMITED_ERROR);
+        super(LIMITED_ERROR_INFO);
+        this.errorCode = LIMITED_ERROR_CODE;
     }
 
     public LimitedException(String errorInfo) {
-        super(newLimitedError(errorInfo));
+        super(getLimitedErrorInfo(errorInfo));
+        this.errorCode = LIMITED_ERROR_CODE;
     }
 
     /**
@@ -36,11 +42,11 @@ public class LimitedException extends ServiceException {
      * @param errorInfo
      * @return
      */
-    private static IError newLimitedError(String errorInfo) {
+    private static String getLimitedErrorInfo(String errorInfo) {
         if (StringUtils.isBlank(errorInfo)) {
-            return LIMITED_ERROR;
+            return LIMITED_ERROR_INFO;
         } else {
-            return IError.of(LIMITED_ERROR_CODE, errorInfo, IErrorLevel.IGNORE);
+            return errorInfo;
         }
     }
 

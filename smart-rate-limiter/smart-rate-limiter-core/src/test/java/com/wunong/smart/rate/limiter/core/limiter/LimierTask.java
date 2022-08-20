@@ -1,6 +1,5 @@
 package com.wunong.smart.rate.limiter.core.limiter;
 
-import com.wunong.smart.domain.platform.utils.Threads;
 import com.wunong.smart.rate.limiter.core.exception.DegradedException;
 import com.wunong.smart.rate.limiter.core.exception.LimitedException;
 import com.wunong.smart.rate.limiter.core.factory.RateLimiterFactory;
@@ -25,15 +24,19 @@ public class LimierTask implements Runnable {
                 factory.tryLimit(key);
             } catch (LimitedException e) {
                 synchronized (LimierTask.class) {
-                    System.out.println("current " + Thread.currentThread().getName() + " limited on " + key + ", msg:" + e.getErrorInfo());
+                    System.out.println("current " + Thread.currentThread().getName() + " limited on " + key + ", msg:" + e.getErrorCode());
                 }
             } catch (DegradedException e) {
                 synchronized (LimierTask.class) {
-                    System.out.println("current " + Thread.currentThread().getName() + " degraded on " + key + "msg:" + e.getErrorInfo());
+                    System.out.println("current " + Thread.currentThread().getName() + " degraded on " + key + "msg:" + e.getErrorCode());
                 }
             }
 
-            Threads.sleep(200L);
+            try {
+                Thread.sleep(200L);
+            } catch (InterruptedException e) {
+                // do nothing
+            }
         }
     }
 

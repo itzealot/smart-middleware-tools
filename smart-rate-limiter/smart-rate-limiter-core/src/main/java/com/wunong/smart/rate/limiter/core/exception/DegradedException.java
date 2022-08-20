@@ -1,8 +1,6 @@
 package com.wunong.smart.rate.limiter.core.exception;
 
-import com.wunong.smart.domain.platform.exception.IError;
-import com.wunong.smart.domain.platform.exception.IErrorLevel;
-import com.wunong.smart.domain.platform.exception.ServiceException;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -10,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author created by zealot.zt
  */
-public class DegradedException extends ServiceException {
+public class DegradedException extends RuntimeException {
 
     /**
      * 降级错误码
@@ -18,29 +16,37 @@ public class DegradedException extends ServiceException {
     public static final String DEGRADED_ERROR_CODE = "DEGRADED_ERROR";
 
     /**
-     * 降级错误信息
+     * 错误信息
      */
-    public static final IError DEGRADED_ERROR = IError.of(DEGRADED_ERROR_CODE, "亲，请求失败请稍后重试", IErrorLevel.IGNORE);
+    public static final String DEGRADED_ERROR_INFO = "亲，请求失败请稍后重试";
+
+    /**
+     * 错误码
+     */
+    @Getter
+    private String errorCode;
 
     public DegradedException() {
-        super(DEGRADED_ERROR);
+        super(DEGRADED_ERROR_INFO);
+        this.errorCode = DEGRADED_ERROR_CODE;
     }
 
     public DegradedException(String errorInfo) {
-        super(newDegradeError(errorInfo));
+        super(getDegradeErrorInfo(errorInfo));
+        this.errorCode = DEGRADED_ERROR_CODE;
     }
 
     /**
-     * 构建降级错误
+     * 获取降级错误信息
      *
      * @param errorInfo
      * @return
      */
-    private static IError newDegradeError(String errorInfo) {
+    protected static String getDegradeErrorInfo(String errorInfo) {
         if (StringUtils.isBlank(errorInfo)) {
-            return DEGRADED_ERROR;
+            return DEGRADED_ERROR_INFO;
         } else {
-            return IError.of(DEGRADED_ERROR_CODE, errorInfo, IErrorLevel.IGNORE);
+            return errorInfo;
         }
     }
 

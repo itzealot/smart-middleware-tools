@@ -1,7 +1,5 @@
 package com.wunong.smart.rate.limiter.core.api;
 
-import com.wunong.smart.domain.platform.utils.Numbers;
-
 /**
  * 限制器
  *
@@ -38,7 +36,7 @@ public interface IRateLimiter {
      * @return
      */
     default boolean isDegraded() {
-        return Numbers.isNegative(getQps());
+        return getQps() <= 0;
     }
 
 }
