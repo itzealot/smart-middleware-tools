@@ -24,18 +24,20 @@ public class LimiterData {
     /**
      * 限流类型
      */
-    private LimitTypeEnum limitTypeEnum = LimitTypeEnum.METHOD_KEY;
+    private LimitTypeEnum limitTypeEnum;
 
     public static LimiterData create(String key, String tips, LimitTypeEnum sourceEnum) {
-        LimiterData data = create(key, tips);
+        LimiterData data = new LimiterData();
+        data.setKey(key);
+        data.setTips(tips);
         data.setLimitTypeEnum(sourceEnum);
         return data;
     }
 
-    public static LimiterData create(String key, String tips) {
+    public static LimiterData create(String key, LimitTypeEnum sourceEnum) {
         LimiterData data = new LimiterData();
         data.setKey(key);
-        data.setTips(tips);
+        data.setLimitTypeEnum(sourceEnum);
         return data;
     }
 

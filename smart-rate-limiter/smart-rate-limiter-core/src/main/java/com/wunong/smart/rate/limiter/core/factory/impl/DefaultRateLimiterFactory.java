@@ -5,6 +5,7 @@ import com.wunong.smart.rate.limiter.core.api.MethodKeyProvider;
 import com.wunong.smart.rate.limiter.core.callback.DegradedCallback;
 import com.wunong.smart.rate.limiter.core.callback.LimitedCallback;
 import com.wunong.smart.rate.limiter.core.config.LimiterData;
+import com.wunong.smart.rate.limiter.core.enums.LimitTypeEnum;
 import com.wunong.smart.rate.limiter.core.enums.LimiterEnum;
 import com.wunong.smart.rate.limiter.core.exception.DegradedException;
 import com.wunong.smart.rate.limiter.core.exception.LimitedException;
@@ -63,7 +64,7 @@ public class DefaultRateLimiterFactory implements RateLimiterFactory {
     @Override
     public void tryLimit(Method method) throws LimitedException {
         String key = methodKeyProvider.getKey(method);
-        this.tryLimit(key);
+        this.tryLimit(LimiterData.create(key, LimitTypeEnum.METHOD_KEY));
     }
 
     @Override

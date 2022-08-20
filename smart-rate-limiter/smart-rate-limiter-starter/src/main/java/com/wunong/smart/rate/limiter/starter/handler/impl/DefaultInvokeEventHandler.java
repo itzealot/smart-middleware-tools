@@ -38,7 +38,7 @@ public class DefaultInvokeEventHandler implements InvokeEventHandler {
 
         // 限流参数中获取
         KeyProvider keyProvider = event.findKeyProvider();
-        if (Objects.isNull(keyProvider)) {
+        if (Objects.nonNull(keyProvider)) {
             rateLimiterFactory.tryLimit(LimiterData.create(keyProvider.getKey(), limiter.tips(), LimitTypeEnum.KEY_PROVIDER));
             return;
         }
