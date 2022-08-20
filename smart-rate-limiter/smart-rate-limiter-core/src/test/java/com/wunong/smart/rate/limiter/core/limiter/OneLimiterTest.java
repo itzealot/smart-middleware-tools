@@ -18,7 +18,7 @@ public class OneLimiterTest {
 
     public static final String TEST_PREFIX_KEY = "test_";
 
-    private static final int KEY_SIZE = 2;
+    private static final int KEY_SIZE = 1;
 
     static {
         for (int i = 0; i < KEY_SIZE; i++) {
