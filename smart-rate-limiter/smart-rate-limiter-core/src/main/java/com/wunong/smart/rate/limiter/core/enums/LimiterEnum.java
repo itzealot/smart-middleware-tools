@@ -1,7 +1,7 @@
 package com.wunong.smart.rate.limiter.core.enums;
 
 /**
- * 控制器枚举
+ * 限流结果枚举
  *
  * @author created by zealot.zt
  */
