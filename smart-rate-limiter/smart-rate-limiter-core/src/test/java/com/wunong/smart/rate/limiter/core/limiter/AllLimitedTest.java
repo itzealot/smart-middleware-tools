@@ -10,19 +10,19 @@ import java.util.concurrent.Executors;
 /**
  * @author created by zealot.zt
  */
-public class OneLimiterTest {
+public class AllLimitedTest {
 
-    private static ExecutorService service = Executors.newFixedThreadPool(10);
-
+    private static final int POOL_SIZE = 2;
+    private static ExecutorService service = Executors.newFixedThreadPool(POOL_SIZE);
     private static RateLimiterFactory factory = new DefaultRateLimiterFactory();
 
+    public static final int qps = 0;
     public static final String TEST_PREFIX_KEY = "test_";
-
-    private static final int KEY_SIZE = 1;
+    private static final int KEY_SIZE = 4;
 
     static {
         for (int i = 0; i < KEY_SIZE; i++) {
-            factory.register(getKey(i), GuavaRateLimiter.create(10));
+            factory.register(getKey(i), GuavaRateLimiter.create(qps));
         }
     }
 
@@ -31,7 +31,7 @@ public class OneLimiterTest {
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < POOL_SIZE; i++) {
             service.submit(new LimierTask(factory, getKey(i % KEY_SIZE)));
         }
     }
